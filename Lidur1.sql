@@ -1,15 +1,14 @@
---- Liður 1
--- Skrifið SQL fyrirspurn sem finnur samsvörun á milli ríkja í Game of Thrones heiminum (úr atlas.kingdoms) og húsum (úr got.houses) út frá því hvaða hús tilheyra hvaða ríki.
--- Sýna öll ríki og öll hús, líka þau sem eru ekki með samsvörun. Upsertið möppunina í töfluna stark.tables_mapping með dálkunum kingdom_id, house_id.
+-- Liður 1
+-- Skrifið SQL fyrirspurn sem finnur samsvörun á milli ríkja í Game of Thrones heiminum (úr atlas.kingdoms)
+-- og húsum (úr got.houses) út frá því hvaða hús tilheyra hvaða ríki.
+-- Sýna öll ríki og öll hús, líka þau sem eru ekki með samsvörun. Upsertið möppunina í töfluna <teymi>.tables_mapping með dálkunum kingdom_id, house_id.
 
--- Sýna öll ríki og öll hús
+-- Finna samsvörun milli ríkja og húsa:
 WITH KingdomHouseMapping AS (
     -- Left join: Sýnir öll ríki og samsvörun ef hún er til, annars NULL fyrir hús.
     SELECT
         k.gid AS kingdom_id,
-        h.id AS house_id,
-        k.name AS kingdom_name,
-        h.name AS house_name
+        h.id AS house_id
     FROM
         atlas.kingdoms k
     LEFT JOIN
@@ -22,7 +21,40 @@ WITH KingdomHouseMapping AS (
     -- Right join: Sýnir öll hús og samsvörun ef hún er til, annars NULL fyrir ríki.
     SELECT
         k.gid AS kingdom_id,
-        h.id AS house_id,
+        h.id AS house_id
+    FROM
+        atlas.kingdoms k
+    RIGHT JOIN
+        got.houses h
+    ON
+        k.name ILIKE h.region
+)
+-- Upsert inn í stark.tables_mapping töfluna:
+INSERT INTO stark.tables_mapping (kingdom_id, house_id)
+SELECT
+    kingdom_id,
+    house_id
+FROM
+    KingdomHouseMapping
+ON CONFLICT (house_id) DO NOTHING;  -- Skip insert if a duplicate is found
+
+-- Sýna öll hús og öll ríki með eða án samsvörunar:
+WITH AllKingdomsHouses AS (
+    -- Left join til að sýna öll ríkjanöfn og samsvörun þeirra ef hún er til
+    SELECT
+        k.name AS kingdom_name,
+        h.name AS house_name
+    FROM
+        atlas.kingdoms k
+    LEFT JOIN
+        got.houses h
+    ON
+        k.name ILIKE h.region
+
+    UNION
+
+    -- Right join til að sýna öll hús og samsvörun þeirra ef hún er til
+    SELECT
         k.name AS kingdom_name,
         h.name AS house_name
     FROM
@@ -32,16 +64,16 @@ WITH KingdomHouseMapping AS (
     ON
         k.name ILIKE h.region
 )
--- Sýnir öll ríki og öll hús:
+-- Birta öll gögn
 SELECT
     kingdom_name,
     house_name
 FROM
-    KingdomHouseMapping
+    AllKingdomsHouses
 ORDER BY
     kingdom_name, house_name;
 
--- Liður 2
+-- 2
     -- Skrifið SQL fyrirspurn með CTE sem finnur samsvörun á milli staða og húsa. Hér er markmiðið að finna gagntæka vörpun (one-to-one mapping), þar sem hver staður úr atlas.locations mappast á nákvæmlega eitt hús úr got.houses.
 -- Upsertið niðurstöður fyrir allan heiminn í töfluna stark.tables_mapping með dálkunum house_id, location_id.
 -- Sýnið svo niðurstöður fyrir Norðrið.
@@ -80,7 +112,7 @@ FROM stark.tables_mapping tm
 JOIN got.houses h ON tm.house_id = h.id
 WHERE h.region = 'The North';
 
--- Liður 3
+-- 3
 -- Skrifið SQL fyrirspurn með CTE sem finnur stærstu ættir allra norðanmanna
 -- (þ.e. persónur sem eru hliðhollar húsinu The North).
 -- Einskorðið ykkur við ættir sem hafa fleiri en 5 hliðholla meðlimi.
