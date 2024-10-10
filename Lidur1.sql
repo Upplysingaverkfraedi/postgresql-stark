@@ -1,7 +1,7 @@
--- Liður 1
+-- 1
 -- Skrifið SQL fyrirspurn sem finnur samsvörun á milli ríkja í Game of Thrones heiminum (úr atlas.kingdoms)
 -- og húsum (úr got.houses) út frá því hvaða hús tilheyra hvaða ríki.
--- Sýna öll ríki og öll hús, líka þau sem eru ekki með samsvörun. Upsertið möppunina í töfluna <teymi>.tables_mapping með dálkunum kingdom_id, house_id.
+-- Sýna öll ríki og öll hús, líka þau sem eru ekki með samsvörun. Upsertið möppunina í töfluna stark.tables_mapping með dálkunum kingdom_id, house_id.
 
 -- Finna samsvörun milli ríkja og húsa:
 WITH KingdomHouseMapping AS (
