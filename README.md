@@ -85,6 +85,6 @@ upplýsingum:
 4. Gefið er til kynna hvort persónan sé enn á lífi eða ekki (með `alive` flag og er tvíundarbreyta).
 5. Lista yfir bókaheiti sem persónan kemur fyrir í, í réttri röð eftir útgáfuárum.
 
-Búið til SQL **SELECT skipun** sem sýnir upplýsingar fyrir allar POV-persónur úr viewinu og
-raðið eftir þeim sem eru enn á lífi, svo eftir aldri í lækkandi röð.
+Búin er til SQL **SELECT skipun** sem sýnir upplýsingar fyrir allar POV-persónur úr viewinu. 
+Þeim er svo raðað eftir þeim sem eru enn á lífi, svo eftir aldri í lækkandi röð.
 
